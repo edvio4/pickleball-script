@@ -442,6 +442,7 @@ function login() {
     return false;
 }
 
+// Start of running the script
 if (login()) return;
 
 addCss();
@@ -453,12 +454,15 @@ createManualRunButton();
 
 if (isUnderFiveMinAfterMidnight() || manualRun()) {
     reserveCourt();
-} else if (isFiveMinBeforeMidnight()) {
+    return;
+}
+if (isFiveMinBeforeMidnight()) {
     reset();
     location.reload();
-} else {
-    reset();
-    setTimeout(() => {
-        location.reload();
-    }, 60000);
+    return;
 }
+
+reset();
+setTimeout(() => {
+    location.reload();
+}, 60000);
