@@ -41,6 +41,8 @@ let selectedTimesFiltered = () => selectedTimes().filter(n => n);
 let selectedCourts = () => window.localStorage.getItem('courts') ? window.localStorage.getItem('courts').split(',') : [];
 let selectedCourtsFiltered = () => selectedCourts().filter(n => n);
 let selectedDuration = () => window.localStorage.getItem('selectedDuration') ?? 0;
+let lastTimeNotChecked = () => window.localStorage.getItem(`time_checked_${selectedTimesFiltered().length}`) !== 'true';
+let lastTimeChecked = () => window.localStorage.getItem(`time_checked_${selectedTimesFiltered().length}`) === 'true';
 
 // Elements
 let finalizeButton = () => document.querySelectorAll('input[value="Finalize  Appointment "]')[0];
@@ -50,11 +52,6 @@ let timesTable = () => document.getElementsByClassName("appointment-list-style")
 let loginButton = () => document.querySelectorAll('input[value="Log In"]')[0];
 let loginForm = () => document.querySelectorAll('form[name="auth_form"]')[0];
 let usernameInput = () => document.querySelectorAll('input[name="loginname"]')[0];
-
-// Element methods
-let appointmentTimesLoaded = () => !!document.getElementsByClassName('appointment-list-header').length;
-let lastTimeNotChecked = () => window.localStorage.getItem(`time_checked_${selectedTimesFiltered().length}`) !== 'true';
-let lastTimeChecked = () => window.localStorage.getItem(`time_checked_${selectedTimesFiltered().length}`) === 'true';
 
 function resetTimes() {
     [...Array(3)].forEach((item, i) => {
@@ -417,7 +414,7 @@ function reserveCourt() {
         return;
     }
 
-    if (!timeSelected() && appointmentTimesLoaded() && !selectTime()) continueOrStop();
+    if (!timeSelected() && !selectTime()) continueOrStop();
     if (checkForError()) continueOrStop();
     if (!apptFinalized()) finalizeAppt();
 }
