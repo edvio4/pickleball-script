@@ -26,7 +26,8 @@ const selectedDate = () => DateTime.fromISO(window.localStorage.getItem('selecte
 const dayBeforeSelectedDate = () => selectedDate().minus({ days: 1 });
 const diffMinutes = () => dayBeforeSelectedDate().diff(dateTimeNow(), 'minutes').toObject().minutes;
 const isUnderFiveMinAfterMidnight = () => diffMinutes() > -5 && diffMinutes() <= 0;
-const isFiveMinBeforeMidnight = () => diffMinutes() <= 5;
+const isFiveMinBeforeMidnight = () => diffMinutes() <= 3 && diffMinutes() > 0;
+const selectedDateSimple = () => selectedDate().toLocaleString(DateTime.DATE_HUGE);
 
 // Local Storage
 const courtSelected = () => window.localStorage.getItem('courtSelected') === 'true';
@@ -52,8 +53,10 @@ const timesTable = () => document.getElementsByClassName("appointment-list-style
 const loginButton = () => document.querySelectorAll('input[value="Log In"]')[0];
 const loginForm = () => document.querySelectorAll('form[name="auth_form"]')[0];
 const usernameInput = () => document.querySelectorAll('input[name="loginname"]')[0];
+const timeElements = () => Array.from(timesTable().querySelectorAll('tr')).filter(el => el.querySelectorAll('form')[0]);
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const isLoading = () => getComputedStyle(document.querySelector('div[class="loader"]')).display !== 'none';
 
 function resetTimes() {
     [...Array(3)].forEach((item, i) => {
@@ -201,7 +204,7 @@ function addDurationSelect() {
 
 function createManualRunButton() {
     let durationSelectElement = document.getElementById('duration_select');
-    let newButton = '<button type="button" id="run_script_button" style="margin: 10px 5px 20px 5px">Run Script</button><span>Clicking this manually runs the script.</span><div style="margin-bottom: 20px">The script will run automatically at midnight the day before your chosen date.</div>'
+    let newButton = '<button type="button" id="run_script_button" style="margin: 10px 5px 20px 5px">Run Script</button><span>Clicking this manually runs the script.</span><div style="margin-bottom: 20px">The script will run automatically at midnight the day before your chosen date. You don\'t need to click the "Run Script" button for this to happen.</div>'
     let div = document.createElement('div');
     div.setAttribute("id", "run_script");
     div.innerHTML = newButton.trim();
@@ -298,13 +301,15 @@ function selectTime() {
         return true;
     }
 
-    let element = Array.from(document.querySelectorAll('td'))
-        .find(el => el.textContent === time);
+    let element = timeElements().find(el => {
+        const tds = el.querySelectorAll('td');
+        return tds[0].innerText === selectedDateSimple() && tds[1].innerText === time;
+    });
 
     if (element) {
         window.localStorage.setItem('timeSelected', true);
         window.localStorage.setItem(`time_checked_${index}`, true);
-        element.parentElement.querySelector('form').submit();
+        element.querySelector('form').submit();
         return true;
     }
 
@@ -314,22 +319,47 @@ function selectTime() {
 function nextOrPrevious() {
     let [time, index] = timeBeingChecked();
 
-    let times = Array.from(timesTable().querySelectorAll('td[align="center"]')).map(el => DateTime.fromFormat(el.textContent, 'h:mma'))
-    let first = times[0];
-    let last = times[times.length-1];
     let timeConverted = DateTime.fromFormat(time, 'h:mma');
+    let times = timeElements();
+    let timeLast = times[times.length-1];
 
-    if (timeConverted < first && previousButton()) {
-        previousButton().click();
-        return true;
+    let first = { date: times[0].querySelectorAll('td')[0].innerText, time: DateTime.fromFormat(times[0].querySelectorAll('td')[1].innerText, 'h:mma') };
+    let last = { date: timeLast.querySelectorAll('td')[0].innerText, time: DateTime.fromFormat(timeLast.querySelectorAll('td')[1].innerText, 'h:mma') };
+
+    const checkSameDay = () => {
+        if (selectedDateSimple() !== first.date || selectedDateSimple() !== last.date) return 2;
+
+        if (timeConverted < first.time && previousButton()) {
+            previousButton().click();
+            return 1;
+        }
+
+        if (timeConverted > last.time && nextButton()) {
+            nextButton().click();
+            return 1;
+        }
+
+        return 2;
+    };
+
+    const checkDifferentDay = () => {
+        if (selectedDateSimple() !== first.date && previousButton()) {
+            previousButton().click();
+            return 3;
+        }
+
+        if (selectedDateSimple() === first.date && timeConverted < first.time && previousButton()) {
+            previousButton().click();
+            return 1;
+        }
+
+        return 2;
     }
 
-    if (timeConverted > last && nextButton()) {
-        nextButton().click();
-        return true;
-    }
+    const sameDayState = checkSameDay();
+    if (sameDayState !== 2 ) return sameDayState;
 
-    return false;
+    return checkDifferentDay();
 }
 
 function finalizeAppt() {
@@ -349,12 +379,13 @@ function continueOrStop() {
         return;
     }
     if (lastTimeChecked()) return;
-    if (nextOrPrevious()) return;
+    const nextOrPreviousState = nextOrPrevious();
+    if (nextOrPreviousState === 1) return;
     if (timeBeingChecked().length) {
         window.localStorage.setItem(`time_checked_${timeBeingChecked()[1]}`, true);
-        reserveCourt();
-        return;
+        if (nextOrPreviousState === 2) reserveCourt();
     }
+    if (timeBeingChecked().length || courtBeingChecked().length) return;
 
     stopRunning();
 }
@@ -362,15 +393,13 @@ function continueOrStop() {
 function checkForError() {
     let errorElement = Array.from(document.querySelectorAll('font'))
         .find(el => el.textContent === 'Reservation requires more time than the selected time slot allows, please select another time.');
-    if (!errorElement) return false;
+    if (!errorElement) return;
 
     window.localStorage.setItem('timeSelected', false);
-    if (lastTimeNotChecked()) {
-        errorElement.remove();
-        reserveCourt();
-        return false;
-    }
-    return true;
+    if (!lastTimeNotChecked()) continueOrStop();
+
+    errorElement.remove();
+    reserveCourt();
 }
 
 function checkForMissingFormData() {
@@ -411,8 +440,9 @@ function reserveCourt() {
     if (stop()) return;
 
     if (!courtSelected() && courtBeingChecked().length) {
+        window.localStorage.setItem('dateSelected', false);
         selectCourt();
-        return
+        return;
     }
     if (!reservationSelected()) {
         selectReservation();
@@ -424,7 +454,7 @@ function reserveCourt() {
     }
 
     if (!timeSelected() && !selectTime()) continueOrStop();
-    if (checkForError()) continueOrStop();
+    checkForError();
     if (!apptFinalized()) finalizeAppt();
 }
 
