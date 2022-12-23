@@ -22,11 +22,11 @@ const DateTime = luxon.DateTime;
 
 // Time methods
 let dateTimeNow = () => DateTime.now().setZone('America/Chicago');
-let selectedDate = () => DateTime.fromISO(window.localStorage.getItem('selectedDate')) || dateTimeNow().startOf('week').plus({ days: 8 });
+let selectedDate = () => DateTime.fromISO(window.localStorage.getItem('selectedDate'));
 let dayBeforeSelectedDate = () => selectedDate().minus({ days: 1 });
-let diffMinutes = () => dateTimeNow().diff(selectedDate(), 'minutes').toObject().minutes;
-let isUnderFiveMinAfterMidnight = () => diffMinutes() < 5 && diffMinutes() >= 0;
-let isFiveMinBeforeMidnight = () => diffMinutes() >= 10075;
+let diffMinutes = () => dayBeforeSelectedDate().diff(dateTimeNow(), 'minutes').toObject().minutes;
+let isUnderFiveMinAfterMidnight = () => diffMinutes() > -5 && diffMinutes() <= 0;
+let isFiveMinBeforeMidnight = () => diffMinutes() <= 5;
 
 // Local Storage
 let courtSelected = () => window.localStorage.getItem('courtSelected') === 'true';
@@ -256,8 +256,15 @@ function selectDate() {
         date.click();
         return;
     }
-    alert('Date chosen is not yet available.');
-    stopRunning();
+
+    if (manualRun()) {
+        alert('Date chosen is not yet available.');
+        stopRunning();
+        return;
+    }
+
+    reset();
+    location.reload();
 }
 
 function timeBeingChecked() {
@@ -283,9 +290,9 @@ function selectTime() {
     let [time, index] = timeBeingChecked();
 
     if (!time) return false;
-    if (!timesTable().rows.length) {
+    if (!timesTable().rows.length && index < selectedTimesFiltered().length && previousButton()) {
         window.localStorage.setItem(`time_checked_${index}`, true);
-        selectDate();
+        previousButton().click();
         return true;
     }
 
