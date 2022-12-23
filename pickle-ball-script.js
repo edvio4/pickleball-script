@@ -290,7 +290,6 @@ function courtBeingChecked() {
     return [];
 }
 
-
 function selectTime() {
     let [time, index] = timeBeingChecked();
 
