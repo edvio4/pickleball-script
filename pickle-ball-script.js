@@ -423,21 +423,22 @@ function reserveCourt() {
 }
 
 function login() {
-    sessionStorage.setItem('loginClicked', true);
-    loginForm().submit();
+    if (loginButton() && sessionStorage.getItem('loginClicked') !== 'true') {
+        setTimeout(() => {
+            sessionStorage.setItem('loginClicked', true);
+            loginForm().submit();
+        }, 1000);
+        return true;
+    } else if (loginButton()) {
+        sessionStorage.removeItem('loginClicked');
+        return true;
+    }
+
+    if (!loginButton()) sessionStorage.removeItem('loginClicked');
+    return false;
 }
 
-if (loginButton() && sessionStorage.getItem('loginClicked') !== 'true') {
-    setTimeout(() => {
-        login();
-    }, 1000);
-    return;
-} else if (loginButton()) {
-    sessionStorage.removeItem('loginClicked');
-    return;
-}
-
-if (!loginButton()) sessionStorage.removeItem('loginClicked');
+if (login()) return;
 
 addCss();
 createManualRunButton();
