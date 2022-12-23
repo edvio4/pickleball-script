@@ -21,39 +21,39 @@
 const DateTime = luxon.DateTime;
 
 // Time methods
-let dateTimeNow = () => DateTime.now().setZone('America/Chicago');
-let selectedDate = () => DateTime.fromISO(window.localStorage.getItem('selectedDate'));
-let dayBeforeSelectedDate = () => selectedDate().minus({ days: 1 });
-let diffMinutes = () => dayBeforeSelectedDate().diff(dateTimeNow(), 'minutes').toObject().minutes;
-let isUnderFiveMinAfterMidnight = () => diffMinutes() > -5 && diffMinutes() <= 0;
-let isFiveMinBeforeMidnight = () => diffMinutes() <= 5;
+const dateTimeNow = () => DateTime.now().setZone('America/Chicago');
+const selectedDate = () => DateTime.fromISO(window.localStorage.getItem('selectedDate'));
+const dayBeforeSelectedDate = () => selectedDate().minus({ days: 1 });
+const diffMinutes = () => dayBeforeSelectedDate().diff(dateTimeNow(), 'minutes').toObject().minutes;
+const isUnderFiveMinAfterMidnight = () => diffMinutes() > -5 && diffMinutes() <= 0;
+const isFiveMinBeforeMidnight = () => diffMinutes() <= 5;
 
 // Local Storage
-let courtSelected = () => window.localStorage.getItem('courtSelected') === 'true';
-let reservationSelected = () => window.localStorage.getItem('reservationSelected') === 'true';
-let dateSelected = () => window.localStorage.getItem('dateSelected') === 'true';
-let timeSelected = () => window.localStorage.getItem('timeSelected') === 'true';
-let apptFinalized = () => window.localStorage.getItem('apptFinalized') === 'true';
-let stop = () => window.localStorage.getItem('stop') === 'true';
-let manualRun = () => window.localStorage.getItem('manualRun') === 'true';
-let selectedTimes = () => window.localStorage.getItem('times') ? window.localStorage.getItem('times').split(',') : [];
-let selectedTimesFiltered = () => selectedTimes().filter(n => n);
-let selectedCourts = () => window.localStorage.getItem('courts') ? window.localStorage.getItem('courts').split(',') : [];
-let selectedCourtsFiltered = () => selectedCourts().filter(n => n);
-let selectedDuration = () => window.localStorage.getItem('selectedDuration') ?? 0;
-let lastTimeNotChecked = () => window.localStorage.getItem(`time_checked_${selectedTimesFiltered().length}`) !== 'true';
-let lastTimeChecked = () => window.localStorage.getItem(`time_checked_${selectedTimesFiltered().length}`) === 'true';
+const courtSelected = () => window.localStorage.getItem('courtSelected') === 'true';
+const reservationSelected = () => window.localStorage.getItem('reservationSelected') === 'true';
+const dateSelected = () => window.localStorage.getItem('dateSelected') === 'true';
+const timeSelected = () => window.localStorage.getItem('timeSelected') === 'true';
+const apptFinalized = () => window.localStorage.getItem('apptFinalized') === 'true';
+const stop = () => window.localStorage.getItem('stop') === 'true';
+const manualRun = () => window.localStorage.getItem('manualRun') === 'true';
+const selectedTimes = () => window.localStorage.getItem('times') ? window.localStorage.getItem('times').split(',') : [];
+const selectedTimesFiltered = () => selectedTimes().filter(n => n);
+const selectedCourts = () => window.localStorage.getItem('courts') ? window.localStorage.getItem('courts').split(',') : [];
+const selectedCourtsFiltered = () => selectedCourts().filter(n => n);
+const selectedDuration = () => window.localStorage.getItem('selectedDuration') ?? 0;
+const lastTimeNotChecked = () => window.localStorage.getItem(`time_checked_${selectedTimesFiltered().length}`) !== 'true';
+const lastTimeChecked = () => window.localStorage.getItem(`time_checked_${selectedTimesFiltered().length}`) === 'true';
 
 // Elements
-let finalizeButton = () => document.querySelectorAll('input[value="Finalize  Appointment "]')[0];
-let nextButton = () => document.querySelectorAll('input[value="Next"]')[0];
-let previousButton = () => document.querySelectorAll('input[value="Previous"]')[0];
-let timesTable = () => document.getElementsByClassName("appointment-list-style")[0];
-let loginButton = () => document.querySelectorAll('input[value="Log In"]')[0];
-let loginForm = () => document.querySelectorAll('form[name="auth_form"]')[0];
-let usernameInput = () => document.querySelectorAll('input[name="loginname"]')[0];
+const finalizeButton = () => document.querySelectorAll('input[value="Finalize  Appointment "]')[0];
+const nextButton = () => document.querySelectorAll('input[value="Next"]')[0];
+const previousButton = () => document.querySelectorAll('input[value="Previous"]')[0];
+const timesTable = () => document.getElementsByClassName("appointment-list-style")[0];
+const loginButton = () => document.querySelectorAll('input[value="Log In"]')[0];
+const loginForm = () => document.querySelectorAll('form[name="auth_form"]')[0];
+const usernameInput = () => document.querySelectorAll('input[name="loginname"]')[0];
 
-let sleep = ms => new Promise(r => setTimeout(r, ms));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function resetTimes() {
     [...Array(3)].forEach((item, i) => {
