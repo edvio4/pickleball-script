@@ -53,6 +53,8 @@ let loginButton = () => document.querySelectorAll('input[value="Log In"]')[0];
 let loginForm = () => document.querySelectorAll('form[name="auth_form"]')[0];
 let usernameInput = () => document.querySelectorAll('input[name="loginname"]')[0];
 
+let sleep = ms => new Promise(r => setTimeout(r, ms));
+
 function resetTimes() {
     [...Array(3)].forEach((item, i) => {
         let index = i+1;
@@ -426,24 +428,25 @@ function reserveCourt() {
     if (!apptFinalized()) finalizeAppt();
 }
 
-function login() {
+async function login() {
     if (loginButton() && sessionStorage.getItem('loginClicked') !== 'true') {
-        setTimeout(() => {
-            sessionStorage.setItem('loginClicked', true);
-            loginForm().submit();
-        }, 1000);
-        return true;
-    } else if (loginButton()) {
-        sessionStorage.removeItem('loginClicked');
-        return true;
+        for (let i of [...Array(4)]) {
+            await sleep(500);
+            if (usernameInput().value) {
+                sessionStorage.setItem('loginClicked', true);
+                loginForm().submit();
+                return true;
+            }
+        }
+        return false;
     }
 
     if (!loginButton()) sessionStorage.removeItem('loginClicked');
-    return false;
+    return true;
 }
 
 // Start of running the script
-if (login()) return;
+if (!(await login())) return;
 
 addCss();
 addDatePicker();
