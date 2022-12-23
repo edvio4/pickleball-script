@@ -93,25 +93,13 @@ function resetForNextCourt() {
     resetTimes();
 }
 
-function createManualRunButton() {
-    let logoutElement = document.getElementById('cv-navtab-item-logOut-id');
-    let newButton = '<button type="button" id="run_script_button" style="margin: 20px 5px 10px 5px">Run Script</button><span>Clicking this manually runs the script.</span>'
-    let div = document.createElement('div');
-    div.setAttribute("id", "run_script");
-    div.innerHTML = newButton.trim();
-    logoutElement.parentNode.insertBefore(div, logoutElement.nextSibling);
-    document.getElementById ("run_script_button").addEventListener (
-        "click", manuallyRunScript, false
-    );
-}
-
 function addDatePicker() {
-    let runButtonElement = document.getElementById('run_script');
-    let datepickerElement = '<span style="margin: 10px 10px">Pick Date</span><input type="text" id="date_picker_input" style="margin: 10px 0px">';
+    let logoutElement = document.getElementById('cv-navtab-item-logOut-id');
+    let datepickerElement = '<span style="margin: 20px 10px 10px 10px">Pick Date</span><input type="text" id="date_picker_input" style="margin: 20px 0px 10px 0px">';
     let div = document.createElement('div');
     div.setAttribute("id", "date_picker");
     div.innerHTML = datepickerElement.trim();
-    runButtonElement.parentNode.insertBefore(div, runButtonElement.nextSibling);
+    logoutElement.parentNode.insertBefore(div, logoutElement.nextSibling);
 
     datepicker('#date_picker_input', {
         onSelect: (instance, date) => {
@@ -210,6 +198,18 @@ function addDurationSelect() {
     $(`#duration_picker`).change(function() {
         window.localStorage.setItem('selectedDuration', this.value);
     });
+}
+
+function createManualRunButton() {
+    let durationSelectElement = document.getElementById('duration_select');
+    let newButton = '<button type="button" id="run_script_button" style="margin: 10px 5px 20px 5px">Run Script</button><span>Clicking this manually runs the script.</span><div style="margin-bottom: 20px">The script will run automatically at midnight the day before your chosen date.</div>'
+    let div = document.createElement('div');
+    div.setAttribute("id", "run_script");
+    div.innerHTML = newButton.trim();
+    durationSelectElement.parentNode.insertBefore(div, durationSelectElement.nextSibling);
+    document.getElementById ("run_script_button").addEventListener (
+        "click", manuallyRunScript, false
+    );
 }
 
 function addCss() {
@@ -441,11 +441,11 @@ function login() {
 if (login()) return;
 
 addCss();
-createManualRunButton();
 addDatePicker();
 addTimePicker();
 addCourtPicker();
 addDurationSelect();
+createManualRunButton();
 
 if (isUnderFiveMinAfterMidnight() || manualRun()) {
     reserveCourt();
