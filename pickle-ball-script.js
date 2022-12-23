@@ -134,16 +134,6 @@ function continueOrStop() {
     }
 }
 
-/*
-async function waitForLoader() {
-    let loader = () => document.getElementsByClassName('loader')[0];
-    console.log(window.getComputedStyle(loader()).display)
-    while (loader() && window.getComputedStyle(loader()).display === 'block') {
-        await new Promise(r => setTimeout(r, 1));
-    }
-}
-*/
-
 function reserveCourt() {
     if (stop()) return;
 
