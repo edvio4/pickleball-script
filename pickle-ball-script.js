@@ -56,7 +56,6 @@ const usernameInput = () => document.querySelectorAll('input[name="loginname"]')
 const timeElements = () => Array.from(timesTable().querySelectorAll('tr')).filter(el => el.querySelectorAll('form')[0]);
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const isLoading = () => getComputedStyle(document.querySelector('div[class="loader"]')).display !== 'none';
 
 function resetTimes() {
     [...Array(3)].forEach((item, i) => {
@@ -85,6 +84,7 @@ function reset() {
     window.localStorage.setItem('apptFinalized', false);
     window.localStorage.setItem('stop', false);
     window.localStorage.setItem('manualRun', false);
+    sessionStorage.removeItem('loginClicked');
     resetTimes();
     resetCourts();
 }
@@ -390,15 +390,21 @@ function continueOrStop() {
 }
 
 function checkForError() {
-    let errorElement = Array.from(document.querySelectorAll('font'))
+    const errorElement1 = Array.from(document.querySelectorAll('font'))
         .find(el => el.textContent === 'Reservation requires more time than the selected time slot allows, please select another time.');
-    if (!errorElement) return;
+    const errorElement2 = Array.from(document.querySelectorAll('font'))
+        .find(el => el.textContent === 'The number of appointments is limited to 1 per day');
+    if (!errorElement1 && !errorElement2) return false;
 
-    window.localStorage.setItem('timeSelected', false);
-    if (!lastTimeNotChecked()) continueOrStop();
+    if (errorElement1) {
+        window.localStorage.setItem('timeSelected', false);
+        if (lastTimeChecked()) return true;
+        errorElement1.remove();
+        reserveCourt();
+    }
 
-    errorElement.remove();
-    reserveCourt();
+    if (errorElement2) stopRunning();
+    return false;
 }
 
 function checkForMissingFormData() {
@@ -453,7 +459,7 @@ function reserveCourt() {
     }
 
     if (!timeSelected() && !selectTime()) continueOrStop();
-    checkForError();
+    if (checkForError()) continueOrStop();
     if (!apptFinalized()) finalizeAppt();
 }
 
