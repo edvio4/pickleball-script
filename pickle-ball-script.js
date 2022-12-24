@@ -46,14 +46,14 @@ const lastTimeNotChecked = () => window.localStorage.getItem(`time_checked_${sel
 const lastTimeChecked = () => window.localStorage.getItem(`time_checked_${selectedTimesFiltered().length}`) === 'true';
 
 // Elements
-const finalizeButton = () => document.querySelectorAll('input[value="Finalize  Appointment "]')[0];
-const nextButton = () => document.querySelectorAll('input[value="Next"]')[0];
-const previousButton = () => document.querySelectorAll('input[value="Previous"]')[0];
+const finalizeButton = () => document.querySelector('input[value="Finalize  Appointment "]');
+const nextButton = () => document.querySelector('input[value="Next"]');
+const previousButton = () => document.querySelector('input[value="Previous"]');
 const timesTable = () => document.getElementsByClassName("appointment-list-style")[0];
-const loginButton = () => document.querySelectorAll('input[value="Log In"]')[0];
-const loginForm = () => document.querySelectorAll('form[name="auth_form"]')[0];
-const usernameInput = () => document.querySelectorAll('input[name="loginname"]')[0];
-const timeElements = () => Array.from(timesTable().querySelectorAll('tr')).filter(el => el.querySelectorAll('form')[0]);
+const loginButton = () => document.querySelector('input[value="Log In"]');
+const loginForm = () => document.querySelector('form[name="auth_form"]');
+const usernameInput = () => document.querySelector('input[name="loginname"]');
+const timeElements = () => Array.from(timesTable().querySelectorAll('tr')).filter(el => el.querySelector('form'));
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -147,7 +147,7 @@ function addCourtPicker() {
     let note = '<div style="text-decoration: underline; font-weight: bold;">Select Courts</div>';
     div.innerHTML += note.trim();
     div.setAttribute("id", "court_picker");
-    let select = document.querySelectorAll('select[name="e_id"]')[0];
+    let select = document.querySelector('select[name="e_id"]');
     let courts = Array.from(select.querySelectorAll('option'))
         .reduce((filtered, el) => {
             if (Number.isInteger(parseInt(el.value))) {
@@ -392,8 +392,7 @@ function continueOrStop() {
 function checkForError() {
     const errorElement1 = Array.from(document.querySelectorAll('font'))
         .find(el => el.textContent === 'Reservation requires more time than the selected time slot allows, please select another time.');
-    const errorElement2 = Array.from(document.querySelectorAll('font'))
-        .find(el => el.textContent === 'The number of appointments is limited to 1 per day');
+    const errorElement2 = document.querySelector('font[color="red"]')
     if (!errorElement1 && !errorElement2) return false;
 
     if (errorElement1) {
@@ -401,6 +400,7 @@ function checkForError() {
         if (lastTimeChecked()) return true;
         errorElement1.remove();
         reserveCourt();
+        return false;
     }
 
     if (errorElement2) stopRunning();
