@@ -55,7 +55,7 @@ const Storage = (function() {
     // const lastTimeNotChecked = () => getItem(`time_checked_${selectedTimesFiltered().length}`) !== 'true';
     const lastTimeChecked = () => getItem(`time_checked_${selectedTimesFiltered().length}`) === 'true';
     const timeChecked = index => getItem(`time_checked_${index}`) === 'true';
-    const courtChecked = index => getItem(`court_checked_${index}`) === 'true;';
+    const courtChecked = index => getItem(`court_checked_${index}`) === 'true';
 
     const setTimes = val => setItem('times', val);
 
@@ -259,7 +259,6 @@ const AddElement = (function() {
 const Script = (function() {
     function selectCourt() {
         let [courtName, index] = courtBeingChecked();
-        Storage.setItem(`court_checked_${index}`, true);
         let court = Array.from(document.querySelectorAll('option'))
             .find(el => el.textContent === courtName);
         court.selected = true;
@@ -355,7 +354,7 @@ const Script = (function() {
         let last = { date: timeLast.querySelectorAll('td')[0].innerText, time: DateTime.fromFormat(timeLast.querySelectorAll('td')[1].innerText, 'h:mma') };
 
         const checkSameDay = () => {
-            if (Time.selectedDateSimple() !== first.date || Time.selectedDateSimple() !== last.date) return 2;
+            if (Time.selectedDateSimple() !== first.date || Time.selectedDateSimple() !== last.date) return 3;
 
             if (timeConverted < first.time && Element.previousButton()) {
                 Element.previousButton().click();
@@ -385,7 +384,7 @@ const Script = (function() {
         }
 
         const sameDayState = checkSameDay();
-        if (sameDayState !== 2 ) return sameDayState;
+        if (sameDayState !== 3 ) return sameDayState;
 
         return checkDifferentDay();
     }
@@ -400,7 +399,9 @@ const Script = (function() {
 
     function continueOrStop() {
         let [court, index] = courtBeingChecked();
+
         if (Storage.lastTimeChecked() && court && court !== Storage.selectedCourtsFiltered().pop()) {
+            Storage.setItem(`court_checked_${index}`, true);
             Storage.setItem('courtSelected', false);
             Storage.resetForNextCourt();
             reserveCourt();
@@ -435,6 +436,9 @@ const Script = (function() {
             return false;
         }
 
+        if (errorElement2.textContent === 'No more appointments match your selectionsPlease begin a new search') {
+            return false;
+        }
         if (errorElement2) Storage.stopRunning();
         return false;
     }
