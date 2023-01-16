@@ -180,11 +180,11 @@ const AddElement = (function() {
         courts.forEach((court, i) => {
             let index = i+1;
             let courtElement = `<div>
-            <input id="court_picker_input_${index}"type="checkbox" />
-            <span class="state">
-                <label>${court}</label>
-            </span>
-         </div>`;
+                <input id="court_picker_input_${index}"type="checkbox" />
+                <span class="state">
+                    <label>${court}</label>
+                </span>
+            </div>`;
             div.innerHTML += courtElement.trim();
         });
         timePickerElement.parentNode.insertBefore(div, timePickerElement.nextSibling);
@@ -500,8 +500,8 @@ const Script = (function() {
 
     async function login() {
         if (Element.loginButton() && sessionStorage.getItem('loginClicked') !== 'true') {
-            for (let i of [...Array(4)]) {
-                await sleep(500);
+            for (let i of [...Array(40)]) {
+                await sleep(100);
                 if (Element.usernameInput().value) {
                     sessionStorage.setItem('loginClicked', true);
                     Element.loginForm().submit();
