@@ -129,7 +129,7 @@ const AddElement = (function() {
             onSelect: (instance, date) => {
                 Storage.setItem('selectedDate', DateTime.fromJSDate(date).toISO());
             },
-            dateSelected: Time.selectedDate().toJSDate(),
+            dateSelected: Time.selectedDate().invalid ? undefined : Time.selectedDate().toJSDate(),
         });
     }
 
